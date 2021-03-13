@@ -307,10 +307,21 @@ function Invoke-CachedAria2Download ($app, $version, $manifest, $architecture, $
         Write-Host ''
 
         if ($lastexitcode -gt 0) {
-            error "Download failed! (Error $lastexitcode) $(aria_exit_code $lastexitcode)"
-            error $urlstxt_content
-            error $aria2
-            abort $(new_issue_msg $app $bucket 'download via aria2 failed')
+            warn "Download failed! (Error $lastexitcode) $(aria_exit_code $lastexitcode)"
+            warn $urlstxt_content
+            warn $aria2
+            warn $(new_issue_msg $app $bucket "download via aria2 failed")
+
+            Write-Host "Fallback to default downloader ..."
+
+            try {
+                foreach ($url in $urls) {
+                    Invoke-CachedDownload $app $version $url "$($data.$url.target)" $cookies $use_cache
+                }
+            } catch {
+                write-host -f darkred $_
+                abort "URL $url is not valid"
+            }
         }
 
         # remove aria2 input file when done
