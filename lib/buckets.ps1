@@ -154,7 +154,7 @@ function add_bucket($name, $repo) {
     }
     ensure $bucketsdir | Out-Null
     $dir = ensure $dir
-    Invoke-Git -ArgumentList @('clone', $repo, $dir, '-q')
+    Invoke-Git -ArgumentList @('clone', $repo, $dir, '-q', '--filter=blob:none')
     Write-Host 'OK'
     success "The $name bucket was added successfully."
     return 0
