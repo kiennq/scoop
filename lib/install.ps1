@@ -308,10 +308,22 @@ function dl_with_cache_aria2($app, $version, $manifest, $architecture, $dir, $co
         Write-Host ''
 
         if($lastexitcode -gt 0) {
-            error "Download failed! (Error $lastexitcode) $(aria_exit_code $lastexitcode)"
-            error $urlstxt_content
-            error $aria2
-            abort $(new_issue_msg $app $bucket "download via aria2 failed")
+            warn "Download failed! (Error $lastexitcode) $(aria_exit_code $lastexitcode)"
+            warn $urlstxt_content
+            warn $aria2
+            warn $(new_issue_msg $app $bucket "download via aria2 failed")
+
+            Write-Host "Fallback to default downloader ..."
+
+            try
+            {
+                dl_with_cache $app $version $url "$dir\$($data.$url.filename)" $cookies $use_cache
+            }
+            catch
+            {
+                write-host -f darkred $_
+                abort "URL $url is not valid"
+            }
         }
 
         # remove aria2 input file when done
