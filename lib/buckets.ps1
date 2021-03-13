@@ -107,7 +107,7 @@ function add_bucket($name, $repo) {
 
     ensure $bucketsdir > $null
     $dir = ensure $dir
-    git_clone "$repo" "`"$dir`"" -q
+    git_clone --filter=blob:none "$repo" "`"$dir`"" -q
     success "The $name bucket was added successfully."
 }
 
