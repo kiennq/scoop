@@ -154,7 +154,7 @@ function add_bucket($name, $repo) {
     }
     ensure $bucketsdir | Out-Null
     $dir = ensure $dir
-    $out = Invoke-Git -ArgumentList @('clone', $repo, $dir, '-q')
+    $out = Invoke-Git -ArgumentList @('clone', $repo, $dir, '-q', '--filter=blob:none')
     if ($LASTEXITCODE -ne 0) {
         error "Failed to clone '$repo' to '$dir'.`n`nError given:`n$out`n`nPlease check the repository URL or network connection and try again."
         Remove-Item $dir -Recurse -Force -ErrorAction SilentlyContinue
