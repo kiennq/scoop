@@ -81,7 +81,7 @@ function Sync-Scoop {
         $olddir = "$currentdir\..\old"
 
         # get git scoop
-        Invoke-Git -ArgumentList @('clone', '-q', $configRepo, '--branch', $configBranch, '--single-branch', $newdir)
+        Invoke-Git -ArgumentList @('clone', '-q', '--filter=blob:none' ,$configRepo, '--branch', $configBranch, '--single-branch', $newdir)
 
         # check if scoop was successful downloaded
         if (!(Test-Path "$newdir\bin\scoop.ps1")) {
