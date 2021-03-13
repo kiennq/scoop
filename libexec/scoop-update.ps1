@@ -71,7 +71,7 @@ function update_scoop() {
         $newdir = fullpath $(versiondir 'scoop' 'new')
 
         # get git scoop
-        git_clone -q $configRepo --branch $configBranch --single-branch "`"$newdir`""
+        git_clone -q --filter=blob:none $configRepo --branch $configBranch --single-branch "`"$newdir`""
 
         # check if scoop was successful downloaded
         if (!(test-path "$newdir")) {
