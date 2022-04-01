@@ -1,5 +1,5 @@
 
-VER?=2.2.1
+VER?=v3.0
 ZIP=shimexe.zip
 URL?=https://github.com/kiennq/scoop-better-shimexe/releases/download/$(VER)/$(ZIP)
 LATEST_URL?=https://github.com/kiennq/scoop-better-shimexe/releases/latest
@@ -26,7 +26,7 @@ $(ZIP): version.txt
 download: $(ZIP)  ## Download shim from https://github.com/kiennq/scoop-better-shimexe
 
 shim.exe: $(ZIP)
-	unzip -z -j -o $(ZIP)
+	unzip -j -o $(ZIP)
 	@touch $@
 
 unzip: shim.exe ## Unzip download
