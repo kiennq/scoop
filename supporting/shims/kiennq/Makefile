@@ -1,5 +1,4 @@
-
-VER?=v3.0
+VER?=v3.0.ea09917
 ZIP=shimexe.zip
 URL?=https://github.com/kiennq/scoop-better-shimexe/releases/download/$(VER)/$(ZIP)
 LATEST_URL?=https://github.com/kiennq/scoop-better-shimexe/releases/latest
