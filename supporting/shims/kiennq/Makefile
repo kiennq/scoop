@@ -1,13 +1,13 @@
-VER?=v3.0.ea09917
+VER?=v3.0.e0fb559
 ZIP=shimexe.zip
 URL?=https://github.com/kiennq/scoop-better-shimexe/releases/download/$(VER)/$(ZIP)
-LATEST_URL?=https://github.com/kiennq/scoop-better-shimexe/releases/latest
+LATEST_URL?=https://github.com/kiennq/scoop-better-shimexe/releases
 NEWVER=$(shell cat version.txt)
 
 all: verify ## make download unzip verify
 
 version.txt:
-	@curl --max-redirs 0 -s -D - -o /dev/null $(LATEST_URL) | grep -i ^location | sed -E -e "s|.*/([^/]+)$$|\1|" >version.txt
+	@curl --max-redirs 0 -s $(LATEST_URL) | grep -i "/tag/v[^\"]\+" -m 1 -o --color=never | cut -b 6- >version.txt
 	@printf "%s " "Latest version is:"
 	@cat version.txt
 
