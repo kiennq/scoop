@@ -16,18 +16,17 @@ jobs:
       upstream_repo: ScoopInstaller/Scoop
       upstream_branch: develop
     steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 20
-          # token: ${{ secrets.PAT }} # needed for trigger other workflow
-          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Clone
+        run: |
+          REPO="https://${GITHUB_ACTOR}:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git"
+          git clone --filter=tree:0 $REPO .
       - name: Setup upstream branch
         run: |
           git remote add upstream https://github.com/$upstream_repo.git
-          git fetch upstream $upstream_branch --depth=400
+          echo $upstream_branch | xargs -n1 | xargs -I{} git fetch upstream {} --filter=tree:0
       - name: Sync
         run: |
-          git config --global user.email "${GITHUB_ACTOR}"
-          git config --global user.name "${GITHUB_ACTOR}@users.noreply.github.com"
-          git rebase --autosquash --autostash upstream/$upstream_branch
+          git config --global user.email "github-actions[bot]"
+          git config --global user.name "github-actions[bot]@users.noreply.github.com"
+          echo $upstream_branch | xargs -n1 | xargs -I{} git merge --no-edit upstream/{}
           git push origin -f
