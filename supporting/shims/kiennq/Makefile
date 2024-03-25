@@ -1,10 +1,10 @@
-VER?=v3.1
+VER?=v3.1.1
 ZIP=shimexe.zip
 URL?=https://github.com/kiennq/scoop-better-shimexe/releases/download/$(VER)/$(ZIP)
 LATEST_URL?=https://github.com/kiennq/scoop-better-shimexe/releases
 NEWVER=$(shell cat version.txt)
 
-all: verify ## make download unzip verify
+all: bump verify ## make download unzip verify
 
 version.txt:
 	@curl --max-redirs 0 -s $(LATEST_URL) | grep -i "/tag/v[^\"]\+" -m 1 -o --color=never | cut -b 6- >version.txt
@@ -34,6 +34,7 @@ verify: shim.exe ## Verify SHA256 checksum for shim.exe
 	sed -e "s|bin/||" checksum.sha256 | sha256sum -c
 
 clean: ## Clean .zip files
+	rm version.txt
 	rm -f *.zip
 
 help: ## Display help text
