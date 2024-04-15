@@ -46,6 +46,10 @@
 - **update/uninstall:** Remove items from PATH correctly ([#5833](https://github.com/ScoopInstaller/Scoop/issues/5833))
 - **shim:** Allow GUI applications to attach to the shell's console when launched using the GUI shim ([#5721](https://github.com/ScoopInstaller/Scoop/issues/5721))
 - **core:** Fix arguments parsing method of `Invoke-ExternalCommand()` ([#5839](https://github.com/ScoopInstaller/Scoop/issues/5839))
+- **scoop-alias:** Prevent overwrite existing file when adding alias ([#5577](https://github.com/ScoopInstaller/Scoop/issues/5577))
+- **scoop-virustotal:** Fix the issue that escape character not available in PowerShell 5.1 ([#5870](https://github.com/ScoopInstaller/Scoop/issues/5870))
+- **decompress:** Use `wix.exe` in WiX Toolset v4+ as primary extractor of `Expand-DarkArchive()` ([#5871](https://github.com/ScoopInstaller/Scoop/issues/5871))
+- **shim:** Run JAR file from app's root directory ([#5872](https://github.com/ScoopInstaller/Scoop/issues/5872))
 
 ### Performance Improvements
 
@@ -58,8 +62,10 @@
 
 - **git:** Use Invoke-Git() with direct path to git.exe to prevent spawning shim subprocesses ([#5122](https://github.com/ScoopInstaller/Scoop/issues/5122), [#5375](https://github.com/ScoopInstaller/Scoop/issues/5375))
 - **scoop-download:** Output more detailed manifest information ([#5277](https://github.com/ScoopInstaller/Scoop/issues/5277))
+- **helper:** Remove 7zip's fallback '7zip-zstd' ([#5548](https://github.com/ScoopInstaller/Scoop/issues/5548))
 - **core:** Cleanup some old codes, e.g., msi section and config migration ([#5715](https://github.com/ScoopInstaller/Scoop/issues/5715), [#5824](https://github.com/ScoopInstaller/Scoop/issues/5824))
 - **core:** Rewrite and separate path-related functions to `system.ps1` ([#5836](https://github.com/ScoopInstaller/Scoop/issues/5836), [#5858](https://github.com/ScoopInstaller/Scoop/issues/5858), [#5864](https://github.com/ScoopInstaller/Scoop/issues/5864))
+- **core:** Get rid of 'fullpath' ([#3533](https://github.com/ScoopInstaller/Scoop/issues/3533))
 
 ### Builds
 
