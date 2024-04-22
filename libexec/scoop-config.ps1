@@ -27,6 +27,9 @@
 # use_lessmsi: $true|$false
 #       Prefer lessmsi utility over native msiexec.
 #
+# use_sqlite_cache: $true|$false
+#       Use SQLite database for caching. This is useful for speeding up 'scoop search' and 'scoop shim' commands.
+#
 # no_junction: $true|$false
 #       The 'current' version alias will not be used. Shims and shortcuts will point to specific version instead.
 #
@@ -114,6 +117,11 @@
 # update_nightly: $true|$false
 #       Nightly version is formatted as 'nightly-yyyyMMdd' and will be updated after one day if this is set to $true.
 #       Otherwise, nightly version will not be updated unless `--force` is used.
+#
+# use_isolated_path: $true|$false|[string]
+#       When set to $true, Scoop will use `SCOOP_PATH` environment variable to store apps' `PATH`s.
+#       When set to arbitrary non-empty string, Scoop will use that string as the environment variable name instead.
+#       This is useful when you want to isolate Scoop from the system `PATH`.
 #
 # ARIA2 configuration
 # -------------------

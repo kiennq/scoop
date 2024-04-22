@@ -132,6 +132,9 @@ function set_config {
         $value = [System.Convert]::ToBoolean($value)
     }
 
+    # Initialize config's change
+    Complete-ConfigChange -Name $name -Value $value
+
     if ($null -eq $scoopConfig.$name) {
         $scoopConfig | Add-Member -MemberType NoteProperty -Name $name -Value $value
     } else {
@@ -145,6 +148,81 @@ function set_config {
     # Save config with UTF8NoBOM encoding
     ConvertTo-Json $scoopConfig | Out-UTF8File -FilePath $configFile
     return $scoopConfig
+}
+
+function Complete-ConfigChange {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory, Position = 0)]
+        [string]
+        $Name,
+        [Parameter(Mandatory, Position = 1)]
+        [AllowEmptyString()]
+        [string]
+        $Value
+    )
+
+    if ($Name -eq 'use_isolated_path') {
+        $oldValue = get_config USE_ISOLATED_PATH
+        if ($Value -eq $oldValue) {
+            return
+        } else {
+            $currPathEnvVar = $scoopPathEnvVar
+        }
+        . "$PSScriptRoot\..\lib\system.ps1"
+
+        if ($Value -eq $false -or $Value -eq '') {
+            info 'Turn off Scoop isolated path... This may take a while, please wait.'
+            $movedPath = Get-EnvVar -Name $currPathEnvVar
+            if ($movedPath) {
+                Add-Path -Path $movedPath -Quiet
+                Remove-Path -Path ('%' + $currPathEnvVar + '%') -Quiet
+                Set-EnvVar -Name $currPathEnvVar -Quiet
+            }
+            if (is_admin) {
+                $movedPath = Get-EnvVar -Name $currPathEnvVar -Global
+                if ($movedPath) {
+                    Add-Path -Path $movedPath -Global -Quiet
+                    Remove-Path -Path ('%' + $currPathEnvVar + '%') -Global -Quiet
+                    Set-EnvVar -Name $currPathEnvVar -Global -Quiet
+                }
+            }
+        } else {
+            $newPathEnvVar = if ($Value -eq $true) {
+                'SCOOP_PATH'
+            } else {
+                $Value.ToUpperInvariant()
+            }
+            info "Turn on Scoop isolated path ('$newPathEnvVar')... This may take a while, please wait."
+            $movedPath = Remove-Path -Path "$scoopdir\apps\*" -TargetEnvVar $currPathEnvVar -Quiet -PassThru
+            if ($movedPath) {
+                Add-Path -Path $movedPath -TargetEnvVar $newPathEnvVar -Quiet
+                Add-Path -Path ('%' + $newPathEnvVar + '%') -Quiet
+                if ($currPathEnvVar -ne 'PATH') {
+                    Remove-Path -Path ('%' + $currPathEnvVar + '%') -Quiet
+                    Set-EnvVar -Name $currPathEnvVar -Quiet
+                }
+            }
+            if (is_admin) {
+                $movedPath = Remove-Path -Path "$globaldir\apps\*" -TargetEnvVar $currPathEnvVar -Global -Quiet -PassThru
+                if ($movedPath) {
+                    Add-Path -Path $movedPath -TargetEnvVar $newPathEnvVar -Global -Quiet
+                    Add-Path -Path ('%' + $newPathEnvVar + '%') -Global -Quiet
+                    if ($currPathEnvVar -ne 'PATH') {
+                        Remove-Path -Path ('%' + $currPathEnvVar + '%') -Global -Quiet
+                        Set-EnvVar -Name $currPathEnvVar -Global -Quiet
+                    }
+                }
+            }
+        }
+    }
+
+    if ($Name -eq 'use_sqlite_cache' -and $Value -eq $true) {
+        . "$PSScriptRoot\..\lib\database.ps1"
+        . "$PSScriptRoot\..\lib\manifest.ps1"
+        info 'Initializing SQLite cache in progress... This may take a while, please wait.'
+        Set-ScoopDB
+    }
 }
 
 function setup_proxy() {
@@ -303,7 +381,7 @@ function filesize($length) {
     } else {
         if ($null -eq $length) {
             $length = 0
-       }
+        }
         "$($length) B"
     }
 }
@@ -979,13 +1057,12 @@ function shim($path, $global, $name, $arg) {
 }
 
 function get_shim_path() {
-    $shim_path = "$(versiondir 'scoop' 'current')\supporting\shims\kiennq\shim.exe"
-    $shim_version = get_config SHIM 'default'
-    switch ($shim_version) {
-        '71' { $shim_path = "$(versiondir 'scoop' 'current')\supporting\shims\71\shim.exe"; Break }
-        'scoopcs' { $shim_path = "$(versiondir 'scoop' 'current')\supporting\shimexe\bin\shim.exe"; Break }
-        'kiennq' { Break } # for backward compatibility
-        'default' { Break }
+    $shim_version = get_config SHIM 'kiennq'
+    $shim_path = switch ($shim_version) {
+        'scoopcs' { "$(versiondir 'scoop' 'current')\supporting\shims\scoopcs\shim.exe" }
+        '71' { "$(versiondir 'scoop' 'current')\supporting\shims\71\shim.exe" }
+        'kiennq' { "$(versiondir 'scoop' 'current')\supporting\shims\kiennq\shim.exe" }
+        'default' { "$(versiondir 'scoop' 'current')\supporting\shims\scoopcs\shim.exe" }
         default { warn "Unknown shim version: '$shim_version'" }
     }
     return $shim_path
@@ -1350,6 +1427,13 @@ $globaldir = $env:SCOOP_GLOBAL, (get_config GLOBAL_PATH), "$([System.Environment
 #       multiple users write and access cached files at the same time.
 #       Use at your own risk.
 $cachedir = $env:SCOOP_CACHE, (get_config CACHE_PATH), "$scoopdir\cache" | Where-Object { $_ } | Select-Object -First 1 | Get-AbsolutePath
+
+# Scoop apps' PATH Environment Variable
+$scoopPathEnvVar = switch (get_config USE_ISOLATED_PATH) {
+    { $_ -is [string] } { $_.ToUpperInvariant() }
+    $true { 'SCOOP_PATH' }
+    default { 'PATH' }
+}
 
 # OS information
 $WindowsBuild = [System.Environment]::OSVersion.Version.Build
