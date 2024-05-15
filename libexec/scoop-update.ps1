@@ -6,13 +6,13 @@
 # You can use '*' in place of <app> to update all apps.
 #
 # Options:
-#   -f, --force               Force update even when there isn't a newer version
-#   -g, --global              Update a globally installed app
-#   -i, --independent         Don't install dependencies automatically
-#   -k, --no-cache            Don't use the download cache
-#   -s, --skip                Skip hash validation (use with caution!)
-#   -q, --quiet               Hide extraneous messages
-#   -a, --all                 Update all apps (alternative to '*')
+#   -f, --force            Force update even when there isn't a newer version
+#   -g, --global           Update a globally installed app
+#   -i, --independent      Don't install dependencies automatically
+#   -k, --no-cache         Don't use the download cache
+#   -s, --skip-hash-check  Skip hash validation (use with caution!)
+#   -q, --quiet            Hide extraneous messages
+#   -a, --all              Update all apps (alternative to '*')
 
 . "$PSScriptRoot\..\lib\getopt.ps1"
 . "$PSScriptRoot\..\lib\json.ps1" # 'save_install_info' in 'manifest.ps1' (indirectly)
@@ -28,11 +28,11 @@ if (get_config USE_SQLITE_CACHE) {
     . "$PSScriptRoot\..\lib\database.ps1"
 }
 
-$opt, $apps, $err = getopt $args 'gfiksqa' 'global', 'force', 'independent', 'no-cache', 'skip', 'quiet', 'all'
+$opt, $apps, $err = getopt $args 'gfiksqa' 'global', 'force', 'independent', 'no-cache', 'skip-hash-check', 'quiet', 'all'
 if ($err) { "scoop update: $err"; exit 1 }
 $global = $opt.g -or $opt.global
 $force = $opt.f -or $opt.force
-$check_hash = !($opt.s -or $opt.skip)
+$check_hash = !($opt.s -or $opt.'skip-hash-check')
 $use_cache = !($opt.k -or $opt.'no-cache')
 $quiet = $opt.q -or $opt.quiet
 $independent = $opt.i -or $opt.independent
@@ -186,9 +186,11 @@ function Sync-Bucket {
         # Parallel parameter is available since PowerShell 7
         $buckets | Where-Object { $_.valid } | ForEach-Object -ThrottleLimit 5 -Parallel {
             . "$using:PSScriptRoot\..\lib\core.ps1"
+            . "$using:PSScriptRoot\..\lib\buckets.ps1"
 
-            $bucketLoc = $_.path
             $name = $_.name
+            $bucketLoc = $_.path
+            $innerBucketLoc = Find-BucketDirectory $name
 
             $previousCommit = Invoke-Git -Path $bucketLoc -ArgumentList @('rev-parse', 'HEAD')
             Invoke-Git -Path $bucketLoc -ArgumentList @('pull', '-q')
@@ -196,17 +198,19 @@ function Sync-Bucket {
                 Invoke-GitLog -Path $bucketLoc -Name $name -CommitHash $previousCommit
             }
             if (get_config USE_SQLITE_CACHE) {
-                Invoke-Git -Path $bucketLoc -ArgumentList @('diff', '--name-only', '--diff-filter=d', $previousCommit) | Where-Object {
-                    $_ -match '^[^.].*\.json$'
-                } | ForEach-Object {
-                    [void]($using:updatedFiles).Add($(Join-Path $bucketLoc $_))
+                Invoke-Git -Path $bucketLoc -ArgumentList @('diff', '--name-only', '--diff-filter=d', $previousCommit) | ForEach-Object {
+                    $filePath = Join-Path $bucketLoc $_
+                    if ($filePath -match "^$([regex]::Escape($innerBucketLoc)).*\.json$") {
+                        [void]($using:updatedFiles).Add($filePath)
+                    }
                 }
             }
         }
     } else {
         $buckets | Where-Object { $_.valid } | ForEach-Object {
-            $bucketLoc = $_.path
             $name = $_.name
+            $bucketLoc = $_.path
+            $innerBucketLoc = Find-BucketDirectory $name
 
             $previousCommit = Invoke-Git -Path $bucketLoc -ArgumentList @('rev-parse', 'HEAD')
             Invoke-Git -Path $bucketLoc -ArgumentList @('pull', '-q')
@@ -214,10 +218,11 @@ function Sync-Bucket {
                 Invoke-GitLog -Path $bucketLoc -Name $name -CommitHash $previousCommit
             }
             if (get_config USE_SQLITE_CACHE) {
-                Invoke-Git -Path $bucketLoc -ArgumentList @('diff', '--name-only', '--diff-filter=d', $previousCommit) | Where-Object {
-                    $_ -match '^[^.].*\.json$'
-                } | ForEach-Object {
-                    [void]($updatedFiles).Add($(Join-Path $bucketLoc $_))
+                Invoke-Git -Path $bucketLoc -ArgumentList @('diff', '--name-only', '--diff-filter=d', $previousCommit) | ForEach-Object {
+                    $filePath = Join-Path $bucketLoc $_
+                    if ($filePath -match "^$([regex]::Escape($innerBucketLoc)).*\.json$") {
+                        [void]($updatedFiles).Add($filePath)
+                    }
                 }
             }
         }
