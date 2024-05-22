@@ -2,7 +2,7 @@
 
 ### Features
 
-- **scoop-search:** Use SQLite for caching apps to speed up local search ([#5851](https://github.com/ScoopInstaller/Scoop/issues/5851), [#5918](https://github.com/ScoopInstaller/Scoop/issues/5918), [#5946](https://github.com/ScoopInstaller/Scoop/issues/5946), [#5949](https://github.com/ScoopInstaller/Scoop/issues/5949), [#5955](https://github.com/ScoopInstaller/Scoop/issues/5955), [#5966](https://github.com/ScoopInstaller/Scoop/issues/5966))
+- **scoop-search:** Use SQLite for caching apps to speed up local search ([#5851](https://github.com/ScoopInstaller/Scoop/issues/5851), [#5918](https://github.com/ScoopInstaller/Scoop/issues/5918), [#5946](https://github.com/ScoopInstaller/Scoop/issues/5946), [#5949](https://github.com/ScoopInstaller/Scoop/issues/5949), [#5955](https://github.com/ScoopInstaller/Scoop/issues/5955), [#5966](https://github.com/ScoopInstaller/Scoop/issues/5966), [#5967](https://github.com/ScoopInstaller/Scoop/issues/5967), [#5981](https://github.com/ScoopInstaller/Scoop/issues/5981))
 - **core:** New cache filename format ([#5929](https://github.com/ScoopInstaller/Scoop/issues/5929))
 
 ### Bug Fixes
@@ -18,7 +18,9 @@
 
 ### Code Refactoring
 
+- **decompress:** Use 7zip to extract Zstd archive ([#5973](https://github.com/ScoopInstaller/Scoop/issues/5973))
 - **install:** Separate archive extraction from downloader ([#5951](https://github.com/ScoopInstaller/Scoop/issues/5951))
+- **install:** Replace 'run_(un)installer()' with 'Invoke-Installer()' ([#5968](https://github.com/ScoopInstaller/Scoop/issues/5968), [#5971](https://github.com/ScoopInstaller/Scoop/issues/5971))
 
 ## [v0.4.1](https://github.com/ScoopInstaller/Scoop/compare/v0.4.0...v0.4.1) - 2024-04-25
 

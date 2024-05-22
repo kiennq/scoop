@@ -73,7 +73,7 @@ function Sync-Scoop {
     # check for git
     if (!(Test-GitAvailable)) { abort "Scoop uses Git to update itself. Run 'scoop install git' and try again." }
 
-    Write-Host "Updating Scoop..."
+    Write-Host 'Updating Scoop...'
     $currentdir = versiondir 'scoop' 'current'
     if (!(Test-Path "$currentdir\.git")) {
         $newdir = "$currentdir\..\new"
@@ -182,6 +182,7 @@ function Sync-Bucket {
     $buckets | Where-Object { !$_.valid } | ForEach-Object { Write-Host "'$($_.name)' is not a git repository. Skipped." }
 
     $updatedFiles = [System.Collections.ArrayList]::Synchronized([System.Collections.ArrayList]::new())
+    $removedFiles = [System.Collections.ArrayList]::Synchronized([System.Collections.ArrayList]::new())
     if ($PSVersionTable.PSVersion.Major -ge 7) {
         # Parallel parameter is available since PowerShell 7
         $buckets | Where-Object { $_.valid } | ForEach-Object -ThrottleLimit 5 -Parallel {
@@ -198,10 +199,21 @@ function Sync-Bucket {
                 Invoke-GitLog -Path $bucketLoc -Name $name -CommitHash $previousCommit
             }
             if (get_config USE_SQLITE_CACHE) {
-                Invoke-Git -Path $bucketLoc -ArgumentList @('diff', '--name-only', '--diff-filter=d', $previousCommit) | ForEach-Object {
-                    $filePath = Join-Path $bucketLoc $_
+                Invoke-Git -Path $bucketLoc -ArgumentList @('diff', '--name-status', $previousCommit) | ForEach-Object {
+                    $status, $file = $_ -split '\s+', 2
+                    $filePath = Join-Path $bucketLoc $file
                     if ($filePath -match "^$([regex]::Escape($innerBucketLoc)).*\.json$") {
-                        [void]($using:updatedFiles).Add($filePath)
+                        switch ($status) {
+                            { $_ -in 'A', 'M', 'R' } {
+                                [void]($using:updatedFiles).Add($filePath)
+                            }
+                            'D' {
+                                [void]($using:removedFiles).Add([pscustomobject]@{
+                                        Name   = ([System.IO.FileInfo]$file).BaseName
+                                        Bucket = $name
+                                    })
+                            }
+                        }
                     }
                 }
             }
@@ -218,18 +230,30 @@ function Sync-Bucket {
                 Invoke-GitLog -Path $bucketLoc -Name $name -CommitHash $previousCommit
             }
             if (get_config USE_SQLITE_CACHE) {
-                Invoke-Git -Path $bucketLoc -ArgumentList @('diff', '--name-only', '--diff-filter=d', $previousCommit) | ForEach-Object {
-                    $filePath = Join-Path $bucketLoc $_
+                Invoke-Git -Path $bucketLoc -ArgumentList @('diff', '--name-status', $previousCommit) | ForEach-Object {
+                    $status, $file = $_ -split '\s+', 2
+                    $filePath = Join-Path $bucketLoc $file
                     if ($filePath -match "^$([regex]::Escape($innerBucketLoc)).*\.json$") {
-                        [void]($updatedFiles).Add($filePath)
+                        switch ($status) {
+                            { $_ -in 'A', 'M', 'R' } {
+                                [void]($updatedFiles).Add($filePath)
+                            }
+                            'D' {
+                                [void]($removedFiles).Add([pscustomobject]@{
+                                        Name   = ([System.IO.FileInfo]$file).BaseName
+                                        Bucket = $name
+                                    })
+                            }
+                        }
                     }
                 }
             }
         }
     }
-    if ((get_config USE_SQLITE_CACHE) -and ($updatedFiles.Count -gt 0)) {
+    if ((get_config USE_SQLITE_CACHE) -and ($updatedFiles.Count -gt 0 -or $removedFiles.Count -gt 0)) {
         info 'Updating cache...'
         Set-ScoopDB -Path $updatedFiles
+        $removedFiles | Remove-ScoopDBItem
     }
 }
 
@@ -316,7 +340,7 @@ function update($app, $global, $quiet = $false, $independent, $suggested, $use_c
     Invoke-HookScript -HookType 'pre_uninstall' -Manifest $old_manifest -Arch $architecture
 
     Write-Host "Uninstalling '$app' ($old_version)"
-    run_uninstaller $old_manifest $architecture $dir
+    Invoke-Installer -Path $dir -Manifest $old_manifest -ProcessorArchitecture $architecture -Uninstall
     rm_shims $app $old_manifest $global $architecture
 
     # If a junction was used during install, that will have been used
