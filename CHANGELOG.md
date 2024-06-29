@@ -5,6 +5,7 @@
 - **scoop-search:** Use SQLite for caching apps to speed up local search ([#5851](https://github.com/ScoopInstaller/Scoop/issues/5851), [#5918](https://github.com/ScoopInstaller/Scoop/issues/5918), [#5946](https://github.com/ScoopInstaller/Scoop/issues/5946), [#5949](https://github.com/ScoopInstaller/Scoop/issues/5949), [#5955](https://github.com/ScoopInstaller/Scoop/issues/5955), [#5966](https://github.com/ScoopInstaller/Scoop/issues/5966), [#5967](https://github.com/ScoopInstaller/Scoop/issues/5967), [#5981](https://github.com/ScoopInstaller/Scoop/issues/5981))
 - **core:** New cache filename format ([#5929](https://github.com/ScoopInstaller/Scoop/issues/5929))
 - **install:** Added the ability to install specific version of app from URL/file link ([#5988](https://github.com/ScoopInstaller/Scoop/issues/5988))
+- **decompress:** Use innounp-unicode as default Inno Setup Unpacker ([#6028](https://github.com/ScoopInstaller/Scoop/issues/6028))
 
 ### Bug Fixes
 
@@ -21,6 +22,8 @@
 - **core:** Search for Git executable instead of any cmdlet ([#5998](https://github.com/ScoopInstaller/Scoop/issues/5998))
 - **core:** Use correct path in 'bash' ([#6006](https://github.com/ScoopInstaller/Scoop/issues/6006))
 - **core:** Limit the number of commands to get when search for git executable ([#6013](https://github.com/ScoopInstaller/Scoop/pull/6013))
+- **checkver:** Correct error messages ([#6024](https://github.com/ScoopInstaller/Scoop/issues/6024))
+- **shim:** Restore original path for JAR cmd ([#6030](https://github.com/ScoopInstaller/Scoop/issues/6030))
 
 ### Code Refactoring
 

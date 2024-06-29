@@ -517,7 +517,12 @@ function Get-HelperPath {
             }
             '7zip' { $HelperPath = Get-AppFilePath '7zip' '7z.exe' }
             'Lessmsi' { $HelperPath = Get-AppFilePath 'lessmsi' 'lessmsi.exe' }
-            'Innounp' { $HelperPath = Get-AppFilePath 'innounp' 'innounp.exe' }
+            'Innounp' {
+                $HelperPath = Get-AppFilePath 'innounp-unicode' 'innounp.exe'
+                if ([String]::IsNullOrEmpty($HelperPath)) {
+                    $HelperPath = Get-AppFilePath 'innounp' 'innounp.exe'
+                }
+            }
             'Dark' {
                 $HelperPath = Get-AppFilePath 'wixtoolset' 'wix.exe'
                 if ([String]::IsNullOrEmpty($HelperPath)) {
@@ -1033,8 +1038,9 @@ function shim($path, $global, $name, $arg) {
         warn_on_overwrite "$shim.cmd" $path
         @(
             "@rem $resolved_path",
-            "@cd /d $(Split-Path $resolved_path -Parent)"
-            "@java -jar `"$resolved_path`" $arg %*"
+            "@pushd $(Split-Path $resolved_path -Parent)",
+            "@java -jar `"$resolved_path`" $arg %*",
+            "@popd"
         ) -join "`r`n" | Out-UTF8File "$shim.cmd"
 
         warn_on_overwrite $shim $path
