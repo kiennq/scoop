@@ -1,4 +1,4 @@
-VER?=v3.1.1
+VER?=v3.1.2
 ZIP=shimexe.zip
 URL?=https://github.com/kiennq/scoop-better-shimexe/releases/download/$(VER)/$(ZIP)
 LATEST_URL?=https://github.com/kiennq/scoop-better-shimexe/releases
@@ -36,6 +36,7 @@ verify: shim.exe ## Verify SHA256 checksum for shim.exe
 clean: ## Clean .zip files
 	rm version.txt
 	rm -f *.zip
+	rm -f *.exe
 
 help: ## Display help text
 	@printf "%-8s %s\n" Target Description
