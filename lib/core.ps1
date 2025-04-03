@@ -1,4 +1,4 @@
-function Get-PESubsystem($filePath) {
+﻿function Get-PESubsystem($filePath) {
     try {
         $fileStream = [System.IO.FileStream]::new($filePath, [System.IO.FileMode]::Open, [System.IO.FileAccess]::Read)
         $binaryReader = [System.IO.BinaryReader]::new($fileStream)
@@ -16,8 +16,8 @@ function Get-PESubsystem($filePath) {
     } catch {
         return -1
     } finally {
-        if ($null -ne $binaryReader) { $binaryReader.Close() }
-        if ($null -ne $fileStream) { $fileStream.Close() }
+        if ($binaryReader) { $binaryReader.Close() }
+        if ($fileStream) { $fileStream.Close() }
     }
 }
 
@@ -40,8 +40,8 @@ function Set-PESubsystem($filePath, $targetSubsystem) {
     } catch {
         return $false
     } finally {
-        $binaryReader.Close()
-        $fileStream.Close()
+        if ($binaryReader) { $binaryReader.Close() }
+        if ($fileStream) { $fileStream.Close() }
     }
     return $true
 }
