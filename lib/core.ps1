@@ -16,8 +16,8 @@ function Get-PESubsystem($filePath) {
     } catch {
         return -1
     } finally {
-        $binaryReader.Close()
-        $fileStream.Close()
+        if ($binaryReader) { $binaryReader.Close() }
+        if ($fileStream) { $fileStream.Close() }
     }
 }
 
@@ -40,8 +40,8 @@ function Set-PESubsystem($filePath, $targetSubsystem) {
     } catch {
         return $false
     } finally {
-        $binaryReader.Close()
-        $fileStream.Close()
+        if ($binaryReader) { $binaryReader.Close() }
+        if ($fileStream) { $fileStream.Close() }
     }
     return $true
 }
