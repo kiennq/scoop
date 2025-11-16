@@ -22,6 +22,7 @@
 - **core|manifest:** Avoid error messages when searching non-existent 'deprecated' directory ([#6471](https://github.com/ScoopInstaller/Scoop/issues/6471))
 - **path:** Trim ending slash when initializing paths ([#6501](https://github.com/ScoopInstaller/Scoop/issues/6501))
 - **checkver:** Allow script to run when URL fetch fails but script exists ([#6490](https://github.com/ScoopInstaller/Scoop/issues/6490))
+- **install:** Don't add to `$Error` when checking for service `cexecsvc` ([#6520](https://github.com/ScoopInstaller/Scoop/issues/6520))
 - **checkver:** Fix incorrect version returned when script fails without output ([#6547](https://github.com/ScoopInstaller/Scoop/issues/6547))
 - **uninstall:** Import `url_filename` from `download.ps1` ([#6530](https://github.com/ScoopInstaller/Scoop/issues/6530))
 - **schema:** Add missing `hash.mode` value `github` ([#6533](https://github.com/ScoopInstaller/Scoop/issues/6533))
