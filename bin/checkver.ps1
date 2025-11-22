@@ -274,6 +274,8 @@ while ($in_progress -gt 0) {
     $expected_ver = $json.version
     $ver = $Version
 
+    $matchesHashtable = @{}
+
     if (!$ver) {
         if (!$regexp -and $replace) {
             next "'replace' requires 're' or 'regex'"
@@ -290,6 +292,9 @@ while ($in_progress -gt 0) {
             }
         }
 
+        $page = $null
+        $source = $url
+
         if ($url -and !$err) {
             $ms = New-Object System.IO.MemoryStream
             $ms.Write($result, 0, $result.Length)
@@ -299,10 +304,15 @@ while ($in_progress -gt 0) {
             }
             $page = (New-Object System.IO.StreamReader($ms, (Get-Encoding $wc))).ReadToEnd()
         }
-        $source = $url
+
         if ($script) {
             $page = Invoke-Command ([scriptblock]::Create($script -join "`r`n"))
             $source = 'the output of script'
+        }
+
+        if ($null -eq $page) {
+            next "couldn't retrieve content from $source"
+            continue
         }
 
         if ($jsonpath) {
@@ -363,7 +373,6 @@ while ($in_progress -gt 0) {
             }
 
             if ($match -and $match.Success) {
-                $matchesHashtable = @{}
                 $re.GetGroupNames() | ForEach-Object { $matchesHashtable.Add($_, $match.Groups[$_].Value) }
                 $ver = $matchesHashtable['1']
                 if ($replace) {

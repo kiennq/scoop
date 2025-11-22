@@ -21,7 +21,9 @@
 - **getopt:** Teach getopt to respect the `--%` token ([#6477](https://github.com/ScoopInstaller/Scoop/issues/6477))
 - **core|manifest:** Avoid error messages when searching non-existent 'deprecated' directory ([#6471](https://github.com/ScoopInstaller/Scoop/issues/6471))
 - **path:** Trim ending slash when initializing paths ([#6501](https://github.com/ScoopInstaller/Scoop/issues/6501))
-- **checkver:** Allow script to run when URL fetch fails but script exists ([#6490](https://github.com/ScoopInstaller/Scoop/issues/6490))
+- **checkver:** Allow script to run when URL fetch fails but script exists ([#6490](https://github.com/ScoopInstaller/Scoop/issues/6490), [#6556](https://github.com/ScoopInstaller/Scoop/issues/6556))
+- **install:** Don't add to `$Error` when checking for service `cexecsvc` ([#6520](https://github.com/ScoopInstaller/Scoop/issues/6520))
+- **checkver:** Fix incorrect version returned when script fails without output ([#6547](https://github.com/ScoopInstaller/Scoop/issues/6547))
 - **uninstall:** Import `url_filename` from `download.ps1` ([#6530](https://github.com/ScoopInstaller/Scoop/issues/6530))
 - **schema:** Add missing `hash.mode` value `github` ([#6533](https://github.com/ScoopInstaller/Scoop/issues/6533))
 - **core:** Skip NO_JUNCTION logic when $app is 'scoop' in `currentdir` function ([#6541](https://github.com/ScoopInstaller/Scoop/issues/6541))
@@ -30,6 +32,10 @@
 
 - **output:** Replace raw prints with functions for standardized output ([#6449](https://github.com/ScoopInstaller/Scoop/issues/6449))
 - **output:** Combine the separated outputs into a single output ([#6545](https://github.com/ScoopInstaller/Scoop/issues/6545))
+
+### Builds
+
+- **supporting:** Update System.Data.SQLite to 2.0.2 ([#6555](https://github.com/ScoopInstaller/Scoop/issues/6555))
 
 ## [v0.5.3](https://github.com/ScoopInstaller/Scoop/compare/v0.5.2...v0.5.3) - 2025-08-11
 

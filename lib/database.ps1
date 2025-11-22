@@ -16,19 +16,19 @@
 #>
 function Get-SQLite {
     param (
-        [string]$Version = '1.0.118'
+        [string]$Version = '2.0.2'
     )
     # Install SQLite
     try {
-        Write-Host "Downloading SQLite $Version..." -ForegroundColor DarkYellow
+        Write-Host "Downloading System.Data.SQLite $Version..." -ForegroundColor DarkYellow
         $sqlitePkgPath = "$env:TEMP\sqlite.zip"
         $sqliteTempPath = "$env:TEMP\sqlite"
         $sqlitePath = "$PSScriptRoot\..\supporting\sqlite"
-        Invoke-WebRequest -Uri "https://api.nuget.org/v3-flatcontainer/stub.system.data.sqlite.core.netframework/$version/stub.system.data.sqlite.core.netframework.$version.nupkg" -OutFile $sqlitePkgPath
-        Write-Host "Extracting SQLite $Version... " -ForegroundColor DarkYellow -NoNewline
+        Invoke-WebRequest -Uri "https://globalcdn.nuget.org/packages/system.data.sqlite.$version.nupkg" -OutFile $sqlitePkgPath
+        Write-Host "Extracting System.Data.SQLite $Version... " -ForegroundColor DarkYellow -NoNewline
         Expand-Archive -Path $sqlitePkgPath -DestinationPath $sqliteTempPath -Force
         New-Item -Path $sqlitePath -ItemType Directory -Force | Out-Null
-        Move-Item -Path "$sqliteTempPath\build\net451\*", "$sqliteTempPath\lib\net451\System.Data.SQLite.dll" -Destination $sqlitePath -Force
+        Move-Item -Path "$sqliteTempPath\lib\netstandard2.0\System.Data.SQLite.dll" -Destination $sqlitePath -Force
         Remove-Item -Path $sqlitePkgPath, $sqliteTempPath -Recurse -Force
         Write-Host 'Done.' -ForegroundColor DarkYellow
         return $true
@@ -219,9 +219,9 @@ function Set-ScoopDB {
 
 <#
 .SYNOPSIS
-    Select Scoop database item(s).
+    Find Scoop database item(s).
 .DESCRIPTION
-    Select item(s) from the Scoop SQLite database.
+    Find item(s) from the Scoop SQLite database.
     The pattern is matched against the name, binaries, and shortcuts columns for apps.
 .PARAMETER Pattern
     System.String
@@ -233,9 +233,9 @@ function Set-ScoopDB {
     System.String
 .OUTPUTS
     System.Data.DataTable
-    The selected database item(s).
+    The found database item(s).
 #>
-function Select-ScoopDBItem {
+function Find-ScoopDBItem {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory, Position = 0, ValueFromPipeline)]
@@ -264,6 +264,7 @@ function Select-ScoopDBItem {
         [void]$dbAdapter.Fill($result)
     }
     end {
+        $dbCommand.Dispose()
         $dbAdapter.Dispose()
         $db.Dispose()
         return $result
@@ -322,10 +323,13 @@ function Get-ScoopDBItem {
     process {
         $dbCommand.Parameters.AddWithValue('@Name', $Name) | Out-Null
         $dbCommand.Parameters.AddWithValue('@Bucket', $Bucket) | Out-Null
-        $dbCommand.Parameters.AddWithValue('@Version', $Version) | Out-Null
+        if ($Version) {
+            $dbCommand.Parameters.AddWithValue('@Version', $Version) | Out-Null
+        }
         [void]$dbAdapter.Fill($result)
     }
     end {
+        $dbCommand.Dispose()
         $dbAdapter.Dispose()
         $db.Dispose()
         return $result
